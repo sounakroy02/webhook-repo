@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub Events</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            width: 80%;
+            margin: 0 auto;
+            padding: 20px;
+            background: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+        }
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+        li {
+            background: #e2e2e2;
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>GitHub Events</h1>
+        <ul id="events-list">
+            <!-- Events will be inserted here -->
+        </ul>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const eventsList = document.getElementById('events-list');
+
+            const fetchData = async () => {
+                try {
+                    const response = await fetch('https://c780-115-187-57-153.ngrok-free.app/api/events');
+                    const data = await response.json();
+                    updateEvents(data);
+                } catch (error) {
+                    console.error('Error fetching data:', error);
+                }
+            };
+
+            const updateEvents = (events) => {
+                eventsList.innerHTML = '';
+                events.forEach(event => {
+                    const listItem = document.createElement('li');
+                    if (event.action === 'PUSH') {
+                        listItem.textContent = `${event.author} pushed to ${event.to_branch} on ${new Date(event.timestamp).toLocaleString()}`;
+                    } else if (event.action === 'PULL_REQUEST') {
+                        listItem.textContent = `${event.author} submitted a pull request from ${event.from_branch} to ${event.to_branch} on ${new Date(event.timestamp).toLocaleString()}`;
+                    } else if (event.action === 'MERGE') {
+                        listItem.textContent = `${event.author} merged branch ${event.from_branch} to ${event.to_branch} on ${new Date(event.timestamp).toLocaleString()}`;
+                    }
+                    eventsList.appendChild(listItem);
+                });
+            };
+
+            fetchData();
+            setInterval(fetchData, 15000);
+        });
+    </script>
+</body>
+</html>
